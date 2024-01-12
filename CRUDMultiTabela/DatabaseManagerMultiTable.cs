@@ -111,4 +111,4 @@ namespace CRUDMultiTabela
 //o return do read, retornar uma lista (usar Generic)
 //remover deve receber sempre o objeto
 //Pasta Entidades
-//As colunas serao propriedades do mesmo tipo
+//As colunas serao propriedades do mesmo tipo 
