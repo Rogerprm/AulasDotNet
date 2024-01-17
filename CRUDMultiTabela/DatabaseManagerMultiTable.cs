@@ -6,6 +6,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CRUDMultiTabela
 {
@@ -79,7 +80,7 @@ namespace CRUDMultiTabela
             //Avaliar a FK para deletar cliente/produto com venda.
         }
 
-        public void Update (string tabela, int id, List<string>colunas, List<string> valores)
+        public int Update(string tabela, int id, List<string> colunas, List<string> valores)
         {
             CreateConnection().Open();
 
@@ -88,16 +89,26 @@ namespace CRUDMultiTabela
             var valoresSeparadas = string.Join("','", valores);
             var colunasParametros = string.Join(",@", colunas);
 
-            command.CommandText = $"Update {tabela} set ( {colunasSeparadas} ) Values (@{colunasParametros})";
+            //command.CommandText = $"Update {tabela} set ( {colunasSeparadas} ) Values (@{colunasParametros})";
 
+            string texto = "";
             for (int i = 0; i < colunas.Count; i++)
             {
                 command.Parameters.Add(new SqlParameter(colunas[i], valores[i]));
+                texto = texto + colunas[i] + "=" + "'" + valores[i] + "'" + ",";
+
+                if ((i+1) == colunas.Count)
+                {
+                    texto = texto.Substring(0, texto.Length - 1);               
+                }
+                command.CommandText = $"Update {tabela} set {texto} where id = {id}";
             }
 
+            int qtdDeletada = command.ExecuteNonQuery();
+            return qtdDeletada;
+
+
         }
-
-
     }
 }
 

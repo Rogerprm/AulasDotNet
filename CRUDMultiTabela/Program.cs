@@ -7,25 +7,20 @@
             Console.WriteLine("CRUD 2 ");
 
 
-            var listaColunasCliente = new List<string>() { "CPF", "Nome", "DataNascimento", "Ativo" };
-            var listaColunasProduto = new List<string>() { "Nome", "PrecoUnitario", "Ativo"};
-            var listaColunasVenda = new List<string>() { "IdCliente", "IdProduto", "DataVenda", "Quantidade", "PrecoTotal", "Ativo" };
+            var listaColunasCliente = new List<string>() { "CPF", "Nome", "DataNascimento" };
+            var listaColunasProduto = new List<string>() { "Nome", "PrecoUnitario"};
+            var listaColunasVenda = new List<string>() { "IdCliente", "IdProduto", "DataVenda", "Quantidade", "PrecoTotal"};
             
             var dbManager = new DatabaseManagerMultiTable();
 
-            //if (dbManager.Testconnection())
-            //{
-            //    Console.WriteLine("OK");
-            //}
+            string dataAtual = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-            string dataAtual = DateTime.Now.ToString();
-
-            bool clienteAtivo = true;
+            ///bool clienteAtivo = true;
 
             //C
-            dbManager.Create("cliente", listaColunasCliente, new List<string>() { "0000000000", "roger", "1994-03-18", "1" });
-            dbManager.Create("produto", listaColunasProduto, new List<string>() { "mesa de jantar", "284.34", "1" });
-            dbManager.Create("venda", listaColunasVenda, new List<string>() { "2", "3", dataAtual, "5", "0.00", "1" });
+            dbManager.Create("cliente", listaColunasCliente, new List<string>() { "0000000000", "roger", "1994-03-18"});
+            dbManager.Create("produto", listaColunasProduto, new List<string>() { "mesa de jantar", "284.34"});
+            dbManager.Create("venda", listaColunasVenda, new List<string>() { "2", "3", dataAtual , "5", "0.00" });
 
 
             //R
@@ -48,17 +43,12 @@
             }
 
             //U
-
+            dbManager.Update("cliente", 2, listaColunasCliente,new List<string>() { "12345678901", "TESTE", "1994-03-18" });
 
 
             //D
-
-            dbManager.Delete("Cliente", 11); //Avaliar o delete
+            dbManager.Delete("Cliente", 11); 
             dbManager.Delete("Produto", 8);
-
         }
     }
 }
-
-
-//"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename="C:\Users\roger\OneDrive\Geral\Documentos\Estudo 2023\dotnet\Leandro\AulasDotNet\CRUDMultiTabela\CrudNovo.mdf";Integrated Security=True"
