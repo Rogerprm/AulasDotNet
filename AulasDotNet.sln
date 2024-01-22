@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EstruturaDeDados", "Estrutu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjetoCRUD", "ProjetoCRUD\ProjetoCRUD.csproj", "{F0F3C7E8-C335-47C8-B428-086431E18133}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRUDMultiTabela", "CRUDMultiTabela\CRUDMultiTabela.csproj", "{C48F7C76-E0B7-4D45-8C9E-F1032C29D3E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CRUDMultiTabela", "CRUDMultiTabela\CRUDMultiTabela.csproj", "{C48F7C76-E0B7-4D45-8C9E-F1032C29D3E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRUDObjects", "CRUDObjects\CRUDObjects.csproj", "{51E02D22-0081-4BFC-A4A8-A73B365BB6D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{C48F7C76-E0B7-4D45-8C9E-F1032C29D3E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C48F7C76-E0B7-4D45-8C9E-F1032C29D3E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C48F7C76-E0B7-4D45-8C9E-F1032C29D3E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51E02D22-0081-4BFC-A4A8-A73B365BB6D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51E02D22-0081-4BFC-A4A8-A73B365BB6D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51E02D22-0081-4BFC-A4A8-A73B365BB6D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51E02D22-0081-4BFC-A4A8-A73B365BB6D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

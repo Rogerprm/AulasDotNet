@@ -94,15 +94,17 @@ namespace CRUDMultiTabela
             string texto = "";
             for (int i = 0; i < colunas.Count; i++)
             {
+                if (colunas[i].ToLower() == "ativo" )
+                {
+                    continue;
+                     //sai do looping
+                }
                 command.Parameters.Add(new SqlParameter(colunas[i], valores[i]));
                 texto = texto + colunas[i] + "=" + "'" + valores[i] + "'" + ",";
-
-                if ((i+1) == colunas.Count)
-                {
-                    texto = texto.Substring(0, texto.Length - 1);               
-                }
-                command.CommandText = $"Update {tabela} set {texto} where id = {id}";
             }
+
+            texto = texto.Substring(0, texto.Length - 1);
+            command.CommandText = $"Update {tabela} set {texto} where id = {id}";
 
             int qtdDeletada = command.ExecuteNonQuery();
             return qtdDeletada;
@@ -112,14 +114,3 @@ namespace CRUDMultiTabela
     }
 }
 
-//Criar um Database manager Object
-//Não usar valores e colunas e sim objetos
-//criar 3 classes novas e sera uma para cada tabela do banco
-//o return passa a ser o objeto
-//o add passa o objeto daquele tipo
-//Se chegar um cliente, monta a query para o cliente
-//reflection (System.Reflection) -> Generico, passa o cliente e ele insere na cliente
-//o return do read, retornar uma lista (usar Generic)
-//remover deve receber sempre o objeto
-//Pasta Entidades
-//As colunas serao propriedades do mesmo tipo 

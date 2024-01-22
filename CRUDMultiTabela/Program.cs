@@ -43,7 +43,7 @@
             }
 
             //U
-            dbManager.Update("cliente", 2, listaColunasCliente,new List<string>() { "12345678901", "TESTE", "1994-03-18" });
+            dbManager.Update("cliente", 2, listaColunasCliente,new List<string>() { "55544477788", "ROGER", "2000-03-03" });
 
 
             //D
