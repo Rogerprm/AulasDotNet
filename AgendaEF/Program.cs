@@ -1,10 +1,21 @@
-﻿namespace AgendaEF
+﻿using AgendaEF.Models;
+using System;
+
+namespace AgendaEF
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            Console.WriteLine("AGENDA");
+
+            var aplicacao = new Application();
+
+
+            var menu = new AppManager();
+            menu.MenuAplicacao();
+
+           
         }
     }
 }

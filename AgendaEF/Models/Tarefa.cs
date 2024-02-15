@@ -11,6 +11,7 @@ namespace AgendaEF.Models
         public int TarefaId { get; set; }
         public string Descricao { get; set; }
         public string Responsavel { get; set; }
+        public bool TarefaAtiva { get; set; } = true;
         public int ReuniaoId { get; set; }
         public Reuniao Reuniao { get; set; }
     }
