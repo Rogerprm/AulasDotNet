@@ -1,0 +1,1 @@
+INFO! data: 18/02/2024 00:29:25 - usuario: roger --> Mensagem: Solicitado criacao de reuniao nova com assunto: TESTE no dia 15/02/2025 00:00:00  ;

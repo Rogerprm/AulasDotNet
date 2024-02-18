@@ -1,0 +1,21 @@
+﻿
+
+
+        //Não é necessariamente um CRUD
+        //Alterar executor da tarefa- 
+        //Encerrar tarefa - 
+        //Cancelar ou Alterar a Reuniao -
+        //Metodos especificos para tarefas especificas (Alterar Executor, Alterar data reuniao)
+        //Criar um menu
+        //Cria a reuniao, depois a Ata e por fim as tarefas
+
+        //Correções 14/02:
+        //Corrigir o reagendamento de datas que ja passaram -
+        //Exportacao do arquivo: buscar todas tarefas include reuniao - 
+        //Cada linha é uma reuniao COM as tarefas - 
+        //Incluir logs com AppEnd atraves de uma nova classe LogApp (metodo erro e info e estaticos) - 
+        //se o arquivo ficar com mais de XX Bytes, criar um novo (length) - 
+
+            //LogApp logger = new LogApp();
+            //nesse cenario, esta errado. O certo seria ter um metodo estatico para checkar o arquivo
+            //logappuser nao deve ser usado nessa classe. A classe logappuser nao deveria existir; Usar o return com o erro ou o sucesso (String ou Bool)

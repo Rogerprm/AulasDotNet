@@ -1,0 +1,2 @@
+INFO! data: 16/02/2024 17:19:13 - usuario: roger --> Mensagem: Programa agenda foi inciado! ;
+ERRO! data: 16/02/2024 17:19:32 - usuario: roger --> Mensagem: String '' was not recognized as a valid DateTime. ;

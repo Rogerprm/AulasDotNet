@@ -1,11 +1,6 @@
-﻿using AgendaEF.Migrations;
+﻿using AgendaEF.Logs;
 using AgendaEF.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AgendaEF
 {
@@ -14,6 +9,10 @@ namespace AgendaEF
 
         public void MenuAplicacao()
         {
+            Console.WriteLine("AGENDA");
+
+            int codigo = 0;
+
             Console.WriteLine("1 - Add Reuniao");
             Console.WriteLine("2 - Complementar Reuniao");
             Console.WriteLine("3 - Reagendar Reuniao");
@@ -25,7 +24,15 @@ namespace AgendaEF
             Console.WriteLine("9 - Add Tarefa");
             Console.WriteLine("10 - Importar agenda");
             Console.WriteLine("0 - Sair");
-            int codigo = Int32.Parse(Console.ReadLine());
+            try
+            {
+                codigo = int.Parse(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro no codigo informado!");
+                LogApp.LogErro(ex.Message);
+            }
 
             switch (codigo)
             {
@@ -72,113 +79,206 @@ namespace AgendaEF
         public void Sair()
         {
             Environment.Exit(0);
+            LogApp.LogInfo("Programa agenda foi Finalizado!");
         }
 
         public void AddReuniao()
         {
+            DateTime agendamento = DateTime.Now;
+            string assunto = null;
+            try
+            {
+                Console.WriteLine("Digite o Assunto: ");
+                assunto = Console.ReadLine();
 
-            Console.WriteLine("Digite o Assunto: ");
-            string assunto = Console.ReadLine();
-            Console.WriteLine("Digite a data: ");
-            DateTime agendamento = DateTime.Parse(Console.ReadLine());
+                Console.WriteLine("Digite a data: ");
+                agendamento = DateTime.Parse(Console.ReadLine());
 
-            var app = new Application();
-            app.CriarReuniao(assunto, agendamento);
-
+                LogApp.LogInfo($"Solicitado criacao de reuniao nova com assunto: {assunto} no dia {agendamento} ");
+                var app = new Application();
+                var novaReuniao = app.CriarReuniao(assunto, agendamento);
+                Console.WriteLine(novaReuniao.ToString());
+            }
+            catch (Exception ex)
+            {
+                //logAppUser.LogInformationUser("Erro", $"A data informada não é valida para reuniao. Tente novamente");
+                Console.WriteLine($"Não foi possivel criar uma nova reuniao com os parametros informados data: {agendamento} e assunto {assunto}");
+                LogApp.LogErro(ex.Message);
+                AddReuniao();
+            }
         }
 
         public void ComplementarReuniao()
         {
             var context = new AgendaContext();
-
-            Console.WriteLine("Qual o ID da reuniao? ");
-            int idReuniao = int.Parse(Console.ReadLine());
-            Console.WriteLine("Digite a Ata da Reuniao: ");
-            string ata = Console.ReadLine();
-
-            var reuniao = context.Reunioes.Find(idReuniao);
-            reuniao.Ata = ata;
-
-            context.Entry(reuniao).State = EntityState.Modified;
-            context.SaveChanges();
-
-            Console.WriteLine("Quantas tarefas serão criadas ? ");
-            int QtdTarefas = int.Parse(Console.ReadLine());
-
-            for (int i = 0; i < QtdTarefas; i++)
+            int idReuniao = 0;
+            int QtdTarefas = 0;
+            string ata = null;
+            try
             {
-                Console.WriteLine("Qual a tarefa? ");
-                string tarefaPendente = Console.ReadLine();
-                Console.WriteLine("Quem é o responsavel? ");
-                string responsavelTarefa = Console.ReadLine();
+                Console.WriteLine("Qual o ID da reuniao? ");
+                idReuniao = int.Parse(Console.ReadLine());
+                Console.WriteLine("Digite a Ata da Reuniao: ");
+                ata = Console.ReadLine();
 
-
-                var tarefa = new Tarefa();
-                tarefa.Descricao = tarefaPendente;
-                tarefa.Responsavel = responsavelTarefa;
-                tarefa.ReuniaoId = idReuniao;
-
-
-
-                context.Add(tarefa);
-                context.SaveChanges();
-
+                var reuniao = context.Reunioes.Find(idReuniao);
+                if (reuniao != null)
+                {
+                    reuniao.Ata = ata;
+                    context.Entry(reuniao).State = EntityState.Modified;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine("Reuniao não encontrada!");
+                    ComplementarReuniao();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao inserir ata da reuniao! ");
+                LogApp.LogErro(ex.Message);
             }
 
+            try
+            {
+                Console.WriteLine("Quantas tarefas serão criadas ? ");
+                QtdTarefas = int.Parse(Console.ReadLine());
 
+                for (int i = 0; i < QtdTarefas; i++)
+                {
+                    Console.WriteLine("Qual a tarefa? ");
+                    string tarefaPendente = Console.ReadLine();
+                    Console.WriteLine("Quem é o responsavel? ");
+                    string responsavelTarefa = Console.ReadLine();
 
+                    var tarefa = new Tarefa();
+                    tarefa.Descricao = tarefaPendente;
+                    tarefa.Responsavel = responsavelTarefa;
+                    tarefa.ReuniaoId = idReuniao;
+
+                    context.Add(tarefa);
+                    context.SaveChanges();
+                    Console.WriteLine($"Tarefa {tarefaPendente} inserida com sucesso");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro ao inserir as tarefas.");
+                LogApp.LogErro(ex.Message);
+            }
         }
 
         public void AddTarefa()
         {
-            Console.WriteLine("Qual o ID da reuniao? ");
-            int idReuniao = int.Parse(Console.ReadLine());
-            Console.WriteLine("Qual a tarefa? ");
-            string tarefaPendente = Console.ReadLine();
-            Console.WriteLine("Quem é o responsavel? ");
-            string responsavelTarefa = Console.ReadLine();
+            int idReuniao = 0;
+            string tarefaPendente = null;
+            string responsavelTarefa = null;
+            string retornoUsuario = null;
+            try
+            {
+                Console.WriteLine("Qual o ID da reuniao? ");
+                idReuniao = int.Parse(Console.ReadLine());
+                Console.WriteLine("Qual a tarefa? ");
+                tarefaPendente = Console.ReadLine();
+                Console.WriteLine("Quem é o responsavel? ");
+                responsavelTarefa = Console.ReadLine();
 
-            var app = new Application();
-            app.CriarTarefa(idReuniao, tarefaPendente, responsavelTarefa);
+                var app = new Application();
+                retornoUsuario = app.CriarTarefa(idReuniao, tarefaPendente, responsavelTarefa);
+                LogApp.LogInfo($"tarefa {tarefaPendente} inserida com sucesso para o {responsavelTarefa} na reuniao {idReuniao}");
+                Console.WriteLine(retornoUsuario);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(retornoUsuario);
+                LogApp.LogErro(ex.Message);
+            }
+
         }
 
         public void ListarReunioes()
         {
-            var reunioes = new Application();
-            var reunioesAgendadas = reunioes.SelecionarReunioes();
-
-            foreach (var reuniao in reunioesAgendadas)
+            try
             {
-                Console.WriteLine($" Id: {reuniao.ReuniaoId} Assunto: {reuniao.Assunto} Data: {reuniao.DataReuniao} ");
+                var reunioes = new Application();
+                var reunioesAgendadas = reunioes.SelecionarReunioes();
 
-                foreach (var tarefa in reuniao.Tarefas)
+                foreach (var reuniao in reunioesAgendadas)
                 {
-                    Console.WriteLine($" Id: {tarefa.TarefaId} Tarefa: {tarefa.Descricao}");
+                    Console.WriteLine($" Id: {reuniao.ReuniaoId} Assunto: {reuniao.Assunto} Data: {reuniao.DataReuniao} ");
+
+                    foreach (var tarefa in reuniao.Tarefas)
+                    {
+                        Console.WriteLine($" Id: {tarefa.TarefaId} Tarefa: {tarefa.Descricao}");
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                LogApp.LogErro(ex.Message);
+                Console.WriteLine("Não foi possivel listar as reunioes.");
+            }
+
 
         }
 
         public void ReagendarReuniao()
         {
+            int id = 0;
+            DateTime agendamento = DateTime.Now;
+
             Console.WriteLine("Qual a reuniao que voce quer reagendar? ");
-            int id = int.Parse(Console.ReadLine());
-            Console.WriteLine("Qual a nova data da reuniao ? ");
-            DateTime agendamento = DateTime.Parse(Console.ReadLine());
+            try
+            {
+                id = int.Parse(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                //logAppUser.LogInformationUser("Erro", $"{id} não é um ID valido para reuniao. Tente novamente");
+                Console.WriteLine($"Este não é um ID valido para reuniao. Tente novamente");
+                LogApp.LogErro(ex.Message);
+                ListarReunioes();
+                ReagendarReuniao();
+            }
+
+            try
+            {
+                Console.WriteLine("Qual a nova data da reuniao ? ");
+                agendamento = DateTime.Parse(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                //logAppUser.LogInformationUser("Erro", $"{agendamento} não é uma data valida para reuniao. Tente novamente");
+                Console.WriteLine($"{agendamento} não é uma data valida para reuniao. Tente novamente");
+                LogApp.LogErro(ex.Message);
+                ReagendarReuniao();
+            }
 
             var app = new Application();
-            app.ReagendarReuniao(id, agendamento);
-
+            var reagendamento = app.ReagendarReuniao(id, agendamento);
+            Console.WriteLine(reagendamento.ToString());
         }
 
         public void EncerrarTarefa()
         {
-            Console.WriteLine("Qual a tarefa que voce quer encerrar? ");
-            int id = int.Parse(Console.ReadLine());
+            int id = 0;
+            string retornoUsuario = null;
+            try
+            {
+                Console.WriteLine("Qual a tarefa que voce quer encerrar? ");
+                id = int.Parse(Console.ReadLine());
 
-            var app = new Application();
-            app.EncerrarTarefa(id);
-
+                var app = new Application();
+                retornoUsuario = app.EncerrarTarefa(id);
+                LogApp.LogInfo(retornoUsuario);
+            }
+            catch (Exception ex)
+            {
+                LogApp.LogErro(ex.Message);
+                Console.WriteLine("Erro no encerramento da tarefa: " + retornoUsuario + " Tente novamente");
+                EncerrarTarefa();
+            }
         }
 
         public void CancelarReuniao()
@@ -205,51 +305,62 @@ namespace AgendaEF
 
         public void ExportarAgenda()
         {
-            string path = "C:\\Users\\roger\\OneDrive\\Geral\\Documentos\\Estudo 2023\\dotnet\\Leandro\\AulasDotNet\\AgendaEF\\Arquivos\\arquivo.csv";
-            StreamWriter writer = new StreamWriter(path);
-
-            var reunioes = new Application();
-            var reunioesTarefasAgendadas = reunioes.ExportarReunioesTarefas();
-
-            writer.WriteLine($"AssuntoReuniao,Ata,DataReuniao,ReuniaoAtiva,DescricaoTarefa,ResponsavelTarefa,TarefaAtiva");
-
-            foreach (var reuniao in reunioesTarefasAgendadas)
+            try
             {
-                writer.WriteLine($"{reuniao.Reuniao.Assunto},{reuniao.Reuniao.Ata},{reuniao.Reuniao.DataReuniao},{reuniao.Reuniao.ReuniaoAtiva},{reuniao.Descricao},{reuniao.Responsavel},{reuniao.TarefaAtiva}");
+                string path = "C:\\Users\\roger\\OneDrive\\Geral\\Documentos\\Estudo 2023\\dotnet\\Leandro\\AulasDotNet\\AgendaEF\\Arquivos\\arquivo.csv";
+                StreamWriter writer = new StreamWriter(path);
+
+                var reunioes = new Application();
+                var reunioesTarefasAgendadas = reunioes.ExportarReunioesTarefas();
+
+                writer.WriteLine($"AssuntoReuniao,Ata,DataReuniao,ReuniaoAtiva,DescricaoTarefa,ResponsavelTarefa,TarefaAtiva");
+
+                foreach (var reuniao in reunioesTarefasAgendadas)
+                {
+                    writer.WriteLine($"{reuniao.Reuniao.Assunto},{reuniao.Reuniao.Ata},{reuniao.Reuniao.DataReuniao},{reuniao.Reuniao.ReuniaoAtiva},{reuniao.Descricao},{reuniao.Responsavel},{reuniao.TarefaAtiva}");
+                }
+
+                writer.Close();
+                LogApp.LogInfo("Arquivo gerado com sucesso");
+                Console.WriteLine("Gerado com sucesso");
+            }
+            catch (Exception ex)
+            {
+                LogApp.LogErro(ex.Message);
+                Console.WriteLine("Erro na geração do arquivo");
             }
 
-            writer.Close();
-
-            Console.WriteLine("Gerado com sucesso");
         }
 
         public void ImportarAgenda()
         {
-            string path = "C:\\Users\\roger\\OneDrive\\Geral\\Documentos\\Estudo 2023\\dotnet\\Leandro\\AulasDotNet\\AgendaEF\\Arquivos\\arquivo.csv";
-            StreamReader reader = new StreamReader(path);
-
-            string linhaArquivo;
-            while ((linhaArquivo = reader.ReadLine()) != null)
+            try
             {
-                Console.WriteLine(linhaArquivo);
+                string path = "C:\\Users\\roger\\OneDrive\\Geral\\Documentos\\Estudo 2023\\dotnet\\Leandro\\AulasDotNet\\AgendaEF\\Arquivos\\arquivo.csv";
+                StreamReader reader = new StreamReader(path);
+
+                string linhaArquivo;
+                reader.ReadLine();
+                while ((linhaArquivo = reader.ReadLine()) != null)
+                {
+                    string[] Reunioes = linhaArquivo.Split(',');
+                    foreach (var item in Reunioes)
+                    {
+                        Console.WriteLine($"{item[0]} - {item[3]} ");
+                    }
+
+                }
+                reader.Close();
+                LogApp.LogInfo("Arquivo gerado");
             }
-            reader.Close();
+            catch (Exception ex)
+            {
+                LogApp.LogErro(ex.Message);
+                Console.WriteLine("Erro na leitura do arquivo");
+            }
+            
         }
 
-        //Correções 14/02:
-            //Corrigir o reagendamento de datas que ja passaram
-            //Exportacao do arquivo: buscar todas tarefas include reuniao
-            //Cada linha é uma reuniao COM as tarefas
-            //Incluir logs com AppEnd atraves de uma nova classe LogApp (metodo erro e info e estaticos)
-            //se o arquivo ficar com mais de XX Bytes, criar um novo (length)
 
-
-        //Não é necessariamente um CRUD
-        //Alterar executor da tarefa- 
-        //Encerrar tarefa - 
-        //Cancelar ou Alterar a Reuniao -
-        //Metodos especificos para tarefas especificas (Alterar Executor, Alterar data reuniao)
-        //Criar um menu
-        //Cria a reuniao, depois a Ata e por fim as tarefas
     }
 }

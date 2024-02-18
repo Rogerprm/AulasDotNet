@@ -1,11 +1,7 @@
-﻿using AgendaEF.Models;
+﻿using AgendaEF.Logs;
+using AgendaEF.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace AgendaEF
 {
@@ -16,34 +12,57 @@ namespace AgendaEF
             var appManager = new AppManager();
         }
 
-        //C
-        public void CriarReuniao(string assunto, DateTime agendamento)
+        public string CriarReuniao(string assunto, DateTime agendamento)
         {
-            var reuniao = new Reuniao();
-            reuniao.Assunto = assunto;
-            reuniao.DataReuniao = agendamento;
-            reuniao.Tarefas = new List<Tarefa>();
+            string retornoUsuario = null;
+            try
+            {
+                var reuniao = new Reuniao();
+                reuniao.Assunto = assunto;
+                reuniao.DataReuniao = agendamento;
+                reuniao.Tarefas = new List<Tarefa>();
 
-            var context = new AgendaContext();
-            context.Add(reuniao);
-            context.SaveChanges();
+                var context = new AgendaContext();
+                context.Add(reuniao);
+                context.SaveChanges();
+                LogApp.LogInfo($"Reuniao {reuniao} agendada com sucesso!");
+                retornoUsuario = $"Reuniao {reuniao} agendada com sucesso!";
+            }
+            catch (Exception ex)
+            {
+                LogApp.LogErro(ex.Message);
+                retornoUsuario = "Erro no agendamento. Tente novamente. ";
+            }
+
+            return retornoUsuario;
         }
          
         
-        public void CriarTarefa(int idReuniao, string tarefaPendente, string responsavelTarefa)
+        public string CriarTarefa(int idReuniao, string tarefaPendente, string responsavelTarefa)
         {
+            string retornoUsuario = null;
+            try
+            {
+                var tarefa = new Tarefa();
+                tarefa.Descricao = tarefaPendente;
+                tarefa.Responsavel = responsavelTarefa;
+                tarefa.ReuniaoId = idReuniao;
 
-            var tarefa = new Tarefa();
-            tarefa.Descricao = tarefaPendente;
-            tarefa.Responsavel = responsavelTarefa;
-            tarefa.ReuniaoId = idReuniao;
+                var context = new AgendaContext();
+                context.Add(tarefa);
+                context.SaveChanges();
+                retornoUsuario = "Tarefa criada com sucesso";
+                LogApp.LogInfo(retornoUsuario);
+            }
+            catch (Exception ex)
+            {
+                retornoUsuario = "Erro na criação da tarefa.";
+                LogApp.LogErro(ex.Message);
+            }
 
-            var context = new AgendaContext();
-            context.Add(tarefa);
-            context.SaveChanges();
+            return retornoUsuario;
         }
 
-        //R
         public List<Reuniao> SelecionarReunioes()
         {
             var appManager = new AppManager();
@@ -64,38 +83,79 @@ namespace AgendaEF
 
             var listaReunioesTarefas = context.Tarefas
                 .Include("Reuniao")
-                //.Where(r => r.TarefaAtiva != false)
                 .ToList();
 
             return listaReunioesTarefas;
         }
 
-        public void ReagendarReuniao(int id, DateTime agendamento)
+        public string ReagendarReuniao(int id, DateTime agendamento)
         {
             var context = new AgendaContext();
             var buscaReuniao = context.Reunioes.Find(id);
+            string retornoUsuario = null;
 
             if (buscaReuniao != null)
             {
-                buscaReuniao.DataReuniao = agendamento;
+                if (buscaReuniao.DataReuniao <= DateTime.Now && agendamento > DateTime.Now)
+                {
+                    buscaReuniao.DataReuniao = agendamento;
+                    context.Entry(buscaReuniao).State = EntityState.Modified;
+                    context.SaveChanges();
+                    LogApp.LogInfo($"Reunião {id} reagendada para {agendamento}!");                    
+                    retornoUsuario = $"Reunião {id} reagendada para {agendamento}!";                    
+                    AppManager menu = new AppManager();
+                    menu.MenuAplicacao();
+                }
+                else
+                {
+                    if (buscaReuniao.DataReuniao > DateTime.Now)
+                    {                        
+                        retornoUsuario = $"Impossivel reagendar uma reunião que ja passou ({buscaReuniao.DataReuniao}) ! ";
+                    }
+                    else if (agendamento < DateTime.Now)
+                    {                        
+                        retornoUsuario = $"Impossivel reagendar uma reunião para uma data ({agendamento}) anterior a hoje! ";
+                    }                    
+                    var reagendar = new AppManager();
+                    reagendar.ReagendarReuniao();
+                }
+            }
+            else
+            {
+                //logAppUser.LogInformationUser("INFO", $"Reunião {id} não encontrada. Tente novamente!");
+                retornoUsuario = $"Impossivel reagendar uma reunião para uma data ({agendamento}) anterior a hoje! ";
+                var reagendar = new AppManager();
+                reagendar.ReagendarReuniao();
             }
 
-            context.Entry(buscaReuniao).State = EntityState.Modified;
-            context.SaveChanges();
+            return retornoUsuario;
         }
 
-        public void EncerrarTarefa(int id)
+        public string EncerrarTarefa(int id)
         {
-            var context = new AgendaContext();
-            var buscaTarefa = context.Tarefas.Find(id);
-
-            if (buscaTarefa != null)
+            string retornoUsuario = null;
+            try
             {
-                buscaTarefa.TarefaAtiva = false;
+                var context = new AgendaContext();
+                var buscaTarefa = context.Tarefas.Find(id);
+
+                if (buscaTarefa != null)
+                {
+                    buscaTarefa.TarefaAtiva = false;
+                }
+
+                context.Entry(buscaTarefa).State = EntityState.Modified;
+                context.SaveChanges();
+                retornoUsuario = $"Tarefa {id} encerrada com sucesso";
+                LogApp.LogInfo(retornoUsuario);
+            }
+            catch (Exception ex)
+            {
+                LogApp.LogErro(ex.Message);
+                retornoUsuario = "Erro ao encerrar a tarefa";
             }
 
-            context.Entry(buscaTarefa).State = EntityState.Modified;
-            context.SaveChanges();
+            return retornoUsuario;
         }
 
         public void CancelarReuniao(int id) 

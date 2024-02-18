@@ -1,0 +1,2 @@
+INFO! data: 16/02/2024 17:11:39 - usuario: roger --> Mensagem: Programa agenda foi inciado! ;
+ERRO! data: 16/02/2024 17:11:55 - usuario: roger --> Mensagem: The input string 'a' was not in a correct format. ;

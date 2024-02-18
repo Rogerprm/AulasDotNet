@@ -1,5 +1,4 @@
-﻿using AgendaEF.Models;
-using System;
+﻿using AgendaEF.Logs;
 
 namespace AgendaEF
 {
@@ -7,15 +6,9 @@ namespace AgendaEF
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("AGENDA");
-
-            var aplicacao = new Application();
-
-
+            LogApp.LogInfo("Programa agenda foi inciado!");
             var menu = new AppManager();
             menu.MenuAplicacao();
-
-           
         }
     }
 }
